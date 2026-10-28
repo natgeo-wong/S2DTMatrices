@@ -1,6 +1,15 @@
 name = "S2DTMatrices"
-[compat]
-julia = "1.13.3"
-DrWatson = "2.19.1"
+desc = "Transition Matrices for the Shallow-to-Deep Transition"
+authors = ["Nathanael Wong <natgeo.wong@outlook.com>"]
+
 [deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DrWatson = "634d3b9d-ee7a-5ddf-bec9-22491ea816e1"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+
+[compat]
+julia = "1"

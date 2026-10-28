@@ -3,11 +3,22 @@
 ################################################################################
 
 # Folders to ignore - files may be too large, too many, etc. NOTE: EDIT IF NEEDED.
-/data
-/videos
-/plots
-/notebooks
-/_research
+.claude
+data
+videos
+plots
+notebooks/*.png
+_research
+/Manifest.toml
+logs/
+references/**/*.pdf
+run/
+exp/run_*
+exp/prm/*sample*
+papers/
+*.gif
+*.mp4
+*.pptx
 
 ################################################################################
 #                                    Julia                                     #
