@@ -11,11 +11,6 @@ dt  = ds["time"][:]; hr = hour.(dt .- Hour(6)); mo = month.(dt .- Hour(6))
 COD = ds["COD"][:]; nCOD = length(COD)
 close(ds)
 
-fnc = "RAIN-sgpprecipbetseriesC1.c1-$(ARGS[2])-$(ARGS[3]).nc"
-ds  = NCDataset(datadir(fnc))
-precip = ds["precipitation_rate"][:]
-close(ds)
-
 τ = parse(Int64, ARGS[4])
 
 states = zeros(nCOD)
@@ -24,9 +19,7 @@ sizes = zeros(nCOD)
 
 states[iszero.(COD)] .= 1
 states[(COD.>0).&(COD.<=τ)] .= 2
-states[(COD.>τ).&(precip.>0)] .= 3
-states[(COD.>τ).&iszero.(precip)] .= 4
-states[(COD.>τ).&isnan.(precip)] .= 5
+states[(COD.>τ)] .= 3
 states[(hr .< 6) .| (hr .> 22)] .= 0
 states[(mo .< 4) .| (mo .> 9)] .= 0
 
@@ -44,7 +37,8 @@ end
 states2 = states2[1:ii]
 sizes = sizes[1:ii]
 
-fnc = datadir("COD-$(ARGS[1])-PRECIP-$(ARGS[2])-$(ARGS[3])-τ$τ-states.nc")
+mkpath(datadir("states"))
+fnc = datadir("states","COD-$(ARGS[1])-$(ARGS[2])-$(ARGS[3])-τ$τ-states.nc")
 if isfile(fnc); rm(fnc,force=true) end
 ds = NCDataset(fnc,"c")
 

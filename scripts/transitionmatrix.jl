@@ -6,13 +6,16 @@ using ARMLive
 using Statistics
 
 τ = parse(Int64, ARGS[4])
-fnc = "COD-$(ARGS[1])-$(ARGS[2])-$(ARGS[3])-τ$τ-states.nc"
+prefix = "$(ARGS[1])-$(ARGS[2])-$(ARGS[3])"
+fnc = "$prefix-τ$τ-states.nc"
 ds  = NCDataset(datadir(fnc))
 dt  = ds["time"][:] .- Hour(6)
 states = ds["states"][:]; nstates = maximum(states)
 uniques = ds["unique"][:]
 sizes = ds["sizes"][:] ./ 10
 close(ds)
+
+mkpath(datadir("transitionmatrix"))
 
 statemat = zeros(nstates,nstates)
 
@@ -24,7 +27,7 @@ end
 
 statemat2 = statemat ./ sum(statemat,dims=2)
 
-open(datadir("$fnc-τ$τ-transitionmatrix-basic.txt"),"w") do io
+open(datadir("transitionmatrix","$prefix-τ$τ-transitionmatrix-basic.txt"),"w") do io
     write(io,"$(statemat2)")
 end
 
@@ -33,7 +36,7 @@ for ii = 1 : nstates
 end
 statemat3 = statemat ./ sum(statemat,dims=2)
 
-open(datadir("$fnc-τ$τ-transitionmatrix-sizenormalized.txt"),"w") do io
+open(datadir("transitionmatrix","$prefix-τ$τ-transitionmatrix-sizenormalized.txt"),"w") do io
     write(io,"$(statemat3)")
 end
 
@@ -54,6 +57,6 @@ end
 
 statemat4 = statemat ./ sum(statemat,dims=2)
 
-open(datadir("$fnc-τ$τ-transitionmatrix-uniques.txt"),"w") do io
+open(datadir("transitionmatrix","$prefix-τ$τ-transitionmatrix-uniques.txt"),"w") do io
     write(io,"$(statemat4)")
 end

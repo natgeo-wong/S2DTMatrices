@@ -1,0 +1,84 @@
+using DrWatson
+@quickactivate "S2DTMatrices"
+
+using Dates
+using DelimitedFiles
+using ARMLive
+
+fnc = "COD-$(ARGS[1])-$(ARGS[2])-$(ARGS[3]).nc"
+ds  = NCDataset(datadir(fnc))
+dt  = ds["time"][:]; hr = hour.(dt .- Hour(6)); mo = month.(dt .- Hour(6))
+COD = ds["COD"][:]; nCOD = length(COD)
+close(ds)
+
+fnc = "RAIN-sgpprecipbetseriesC1.c1-$(ARGS[2])-$(ARGS[3]).nc"
+ds  = NCDataset(datadir(fnc))
+precip = ds["precipitation_rate"][:]
+close(ds)
+
+τ = parse(Int64, ARGS[4])
+
+states = zeros(nCOD)
+states2 = zeros(nCOD) * NaN
+sizes = zeros(nCOD)
+
+states[iszero.(COD)] .= 1
+states[(COD.>0).&(COD.<=τ)] .= 2
+states[(COD.>τ).&(precip.>0)] .= 3
+states[(COD.>τ).&iszero.(precip)] .= 4
+states[(COD.>τ).&isnan.(precip)] .= 5
+states[(hr .< 6) .| (hr .> 22)] .= 0
+states[(mo .< 4) .| (mo .> 9)] .= 0
+
+global ii = 1
+for it = 1 : nCOD
+    states2[ii] = states[it]
+    sizes[ii] += 1
+    if it < nCOD
+        if states[it+1] !== states[it]
+            global ii += 1
+        end
+    end
+end
+
+states2 = states2[1:ii]
+sizes = sizes[1:ii]
+
+mkpath(datadir("states"))
+fnc = datadir("states","COD-$(ARGS[1])-RAIN-sgpprecipbetseriesC1.c1-$(ARGS[2])-$(ARGS[3])-τ$τ-states.nc")
+if isfile(fnc); rm(fnc,force=true) end
+ds = NCDataset(fnc,"c")
+
+defDim(ds,"time",nCOD)
+defDim(ds,"states",ii)
+
+nct  = defVar(ds,"time",Float64,("time",),attrib=Dict(
+    "units"     => "minutes since 2000-01-01 00:00:00.0",
+    "long_name" => "time",
+    "calendar"  => "gregorian",
+))
+
+ncstates = defVar(ds,"states",Int64,("time",),attrib=Dict(
+    "description"   => "Cloud States",
+    "standard_name" => "cloud_states",
+    "units"         => "0=Missing,1=Clear,2=Shallow,3=Deep"
+))
+
+ncstates2 = defVar(ds,"unique",Int64,("states",),attrib=Dict(
+    "description"   => "Unique Cloud States",
+    "standard_name" => "unique_cloud_states",
+    "units"         => "0=Missing,1=Clear,2=Shallow,3=Deep"
+))
+
+ncsizes = defVar(ds,"sizes",Int64,("states",),attrib=Dict(
+    "description"   => "State Sizes",
+    "standard_name" => "State sizes",
+    "units"         => "minutes"
+))
+
+nct[:] = dt
+ncstates[:] = states
+ncstates2[:] = states2
+ncsizes[:] = sizes * 10
+
+close(ds)
