@@ -13,8 +13,14 @@ close(ds)
 
 fnc = "RAIN-imergv7finalhh-SGP_2x2-$(ARGS[2])-$(ARGS[3]).nc"
 ds  = NCDataset(datadir(fnc))
-precip = ds["prcp_nn"][:]
+tprcp = ds["prcp_nn"][:]
 close(ds)
+
+precip = zeros(3,length(tprcp))
+precip[1,:] .= tprcp
+precip[2,:] .= tprcp
+precip[3,:] .= tprcp
+precip = reshape(precip,:)
 
 τ = parse(Int64, ARGS[4])
 
