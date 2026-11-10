@@ -28,11 +28,12 @@ states = zeros(nCOD)
 states2 = zeros(nCOD) * NaN
 sizes = zeros(nCOD)
 
-states[iszero.(COD)] .= 1
-states[(COD.>0).&(COD.<=τ)] .= 2
-states[(COD.>τ).&(precip.>0)] .= 3
-states[(COD.>τ).&iszero.(precip)] .= 4
-states[(COD.>τ).&isnan.(precip)] .= 5
+states[iszero.(COD).&iszero.(precip)] .= 1
+states[iszero.(COD).&(precip.>0)] .= 2
+states[(COD.>0).&(COD.<=τ).&iszero.(precip)] .= 3
+states[(COD.>0).&(COD.<=τ).&(precip.>0)] .= 4
+states[(COD.>τ).&iszero.(precip)] .= 5
+states[(COD.>τ).&(precip.>0)] .= 6
 states[(hr .< 6) .| (hr .> 22)] .= 0
 states[(mo .< 4) .| (mo .> 9)] .= 0
 
