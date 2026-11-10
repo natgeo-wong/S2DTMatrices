@@ -45,7 +45,7 @@ states2 = states2[1:ii]
 sizes = sizes[1:ii]
 
 mkpath(datadir("states","basic"))
-fnc = datadir("states","basic","COD-$(ARGS[1])-RAIN-sgpprecipbetseriesC1.c1-$(ARGS[2])-$(ARGS[3])-τ$τ-states.nc")
+fnc = datadir("states","basic","COD-$(ARGS[1])-RAIN-sgpprecipbetseriesC1.c1-$(ARGS[2])-$(ARGS[3])-τ$τ.nc")
 if isfile(fnc); rm(fnc,force=true) end
 ds = NCDataset(fnc,"c")
 
